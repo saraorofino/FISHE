@@ -1,6 +1,6 @@
 #' Simulates a fishery using the Framework for Integrated Stock and Habitat Evaluation to guide their management decisions 
 #' 
-#' Simulate fishery biomass, catch, and growth over time
+#' Simulate fishery biomass, catch, and growth over time with fishery closures if fishing pressure exceeds the limit
 #' @param b initial biomass of the fishery
 #' @param r intrinsic growth rate of species 
 #' @param r_s pace and magnitude of climate change as a percent decline in productivity per year (refer to References/climate_scenarios.md for examples)
@@ -26,9 +26,9 @@
 #' }
 
 
-sim_fishery <- function(b, r, r_s, r_p_s, error, p=0.2, k=10000, years=100, hcr){
+sim_closure <- function(b, r, r_s, r_p_s, error, p=0.2, k=10000, years=100, hcr){
   
-# Setup the results dataframe 
+  # Setup the results dataframe 
   results <- data.frame(
     b = rep(NA, years), c = rep(NA, years), 
     year = 1:years, r = rep(NA, years), r_p = rep(NA, years), f = rep(NA, years),
@@ -63,7 +63,7 @@ sim_fishery <- function(b, r, r_s, r_p_s, error, p=0.2, k=10000, years=100, hcr)
   
   ## If the fishery is over the limit 
   if(results$f_ratio_err[1] >= 2){
-    results$f[1] = f_int #keep fishing pressure but adjust catch for that year to reflect "near closure"
+    results$f[1] = 0 #close the fishery
   } 
   ## If the fishery is between the target and the limit 
   if(results$f_ratio_err[1] > 1.1 & results$f_ratio_err[1] < 2){
@@ -89,13 +89,13 @@ sim_fishery <- function(b, r, r_s, r_p_s, error, p=0.2, k=10000, years=100, hcr)
   }
   
   
-# Loop the model over the specified number of years
-# Results are calculated differently for assessment years and non-assessment years 
-# Management decisions (i.e. changing fishing pressure (f)) are only made during assessment years
+  # Loop the model over the specified number of years
+  # Results are calculated differently for assessment years and non-assessment years 
+  # Management decisions (i.e. changing fishing pressure (f)) are only made during assessment years
   for (t in 2:years) {
- 
-# Assessment year results: 
-      if(results$year[t] %in% assess_int){
+    
+    # Assessment year results: 
+    if(results$year[t] %in% assess_int){
       
       # Growth rates:
       ## Calculate change to growth rate based on climate change 
@@ -127,7 +127,7 @@ sim_fishery <- function(b, r, r_s, r_p_s, error, p=0.2, k=10000, years=100, hcr)
       # Decide how to change f based on the f_ratio estimate with error
       ## If the fishery is over the limit 
       if(results$f_ratio_err[t] >= 2){
-        results$f[t] = results$f[t-1]  #keep fishing pressure but adjust catch for that year to reflect "near closure"
+        results$f[t] = 0  #close the fishery
       } 
       ## If the fishery is between the target and the limit 
       if(results$f_ratio_err[t] > 1.1 & results$f_ratio_err[t] < 2){
@@ -158,7 +158,7 @@ sim_fishery <- function(b, r, r_s, r_p_s, error, p=0.2, k=10000, years=100, hcr)
       
     } 
     
-# Non-assessment year results: 
+    # Non-assessment year results: 
     if(results$year[t] %not_in% assess_int){
       # Calculate growth rates - still update based on yearly changes
       results$r[t] = results$r[t-1] + (r_s*results$r[t-1])
