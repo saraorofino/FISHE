@@ -1,0 +1,150 @@
+---
+title: "example_simulation"
+output: html_document
+---
+
+This document contains a full example of how to source and run the models to generate data. Refer to the README in the `02_run_models` folder for additional information on using the models, the model purpose, and model assumptions.  
+
+
+## Step 1 - Packages
+
+Load the packages required to run the model. If you have not installed the following packages you must first do that using install.packages("package-name")
+```{r packages, message=F, warning=F}
+library(tidyverse)
+library(purrr)
+```
+
+
+## Step 2 - Source Model
+
+Source the model from the `01_model_scripts` folder, we will be doing this using the *here* package which sets the file path to the working directory to wherever you have it stored on your local computer. You can find out your local file path by typing here() in the console. If you don't already have the here package installed you can use install.packages("here")     
+```{r source-model}
+library(here)
+
+# In this example we will be using the sim_fishery() model so this is the model we want to source
+source(file = here::here("01_model_scripts/sim_fishery.R"))
+```
+
+## Step 3 - Inputs
+
+The model requires 9 inputs which are defined in the R script and a specified assessment year interval.  
+
+**Assessment Interval**  
+This is the interval with which the model will be making decisions and we need to set it up as a numeric vector. A few important notes about the assessment interval:  
+
+ - The model requires it to be named "assess_int"  
+ - The model will always make a decision in year 1 and you don't need to specify this in your interval  
+ - The first number and the last number should match; the first number is the first year a decision is made after Year 1, and the last number is the interval  
+ - The middle number is the length of the simulation, this should match what you use as your *years* parameter input, the default is 100 years  
+ 
+In our example we will use a 10 year assessment interval  
+```{r define-assessment-interval}
+
+# Make decision starting in year 10 every 10 years for a total of 100 years
+assess_int <- seq(10,100,10) #this gives us a 10-20-30-...-100 numeric vector 
+```
+
+**Model Inputs**
+The model inputs are described in the R script. While you can simply use the notation sim_fishery(b=4000, r=0.6, r_s = -0.00767 ... hcr = 0.85) this will only run the model a single time for a single set of specifications. This may be useful in some situations and is one method for generating data.  
+
+We have chosen to run the model simultaneously over a list of inputs to represent a range of different input values. This allowed us to compare the outcomes across some of the different paces of climate change, growth rates, initial biomass conditions, choices for harvest control rules etc. This is a sample code for how to create list of simulations, the values for each input can be altered depending on what is of interest to you.  
+```{r experiment-inputs}
+
+# Create a list with ranges you want to test for each of the required model inputs
+list_inputs <- list(
+  b = c(1500, 4000, 6000), #look at three different starting biomasses reflecting overfished, fished, and healthy stocks
+  r = seq(0.1, .8, .1), #sequence of growth rates to reflect both slower growing and faster growing species
+  r_s = seq(-0.01767, 0.01623, 0.002), #sequence of climate change paces 
+  r_p_s = -0.00567, #a single estimate of climate change
+  error = 0.1, #choosing a 10% sampling error 
+  p = 0.2, #shape parameter for Pella Tomlinson, this is the default value of the model
+  k = 10000, #relative carrying capacity, this is the default value of the model
+  years = 100, #length of simulation, needs to match length of your assessment interval, 100 years is the default
+  hcr = c(0.7, 0.8, 0.9) #three discrete harvest control rules to compare
+)
+
+# This code creates a list of all the combinations of the inputs
+# Note if this list size gets really large the model will run very slowly
+inputs <- list_inputs %>%
+  cross()
+
+
+```
+
+## Step 4 - Running the Model
+
+As we mentioned there are two ways to run the model. The first is simply using a single value for each input, this method is shown in the first code chunk. The second is using the list of inputs that we created and running the model over each individual list, this method is shown in the second code chunk.  
+
+**Method 1**
+```{r run-method1}
+# Give a single value for each model parameter 
+# Note if you don't want to change the values of p, k, or years from the default you don't need to include them
+# Default values are given in the R script for each function 
+
+run1 <- sim_fishery(b=4000, r=0.6, r_s=-0.00767, r_p_s=-0.00567, error=0.1, hcr=0.85)
+
+# output is a dataframe with 11 columns and 100 rows (years of the simulation), an explanation of each column variable is given in the R script and the README file in this folder
+```
+
+**Method 2**
+```{r run-method2}
+
+# This method uses the lapply() function to apply the model over the list of inputs
+# Note: the 1:1224 should correspond to the number of lists that are in the inputs object 
+# Again we don't have to include values for p, k, or years if we are using the default values 
+run2 <- lapply(1:1224, function(x) sim_fishery(b=inputs[[x]]$b, r=inputs[[x]]$r, r_s=inputs[[x]]$r_s,
+                                r_p_s=inputs[[x]]$r_p_s, error=inputs[[x]]$error, hcr=inputs[[x]]$hcr))
+
+# here the output is a list of 1224 items one for each simulation with each list containing the same 11 column by 100 row data frame with the results from that specific model run 
+```
+
+## Step 5 - Add Identifiers  
+
+We have chosen to add some identfiers to our data to make data analysis easier. This step is optional although we *highly recommend* it. When the results are unlisted into a single csv file we lose some of the ability to see what inputs went into the model run and these identifiers can be helpful for differentiating between simulations. We recommend including at a minimum the ID, r_s, r_p_s, and hcr columns. If other inputs, for example error, were varied in your simulations you may want to add those as well. These identifer columns can be used to compare across groups and are helpful for graphing results.  
+
+```{r add-identifiers}
+# Unlisting the results will give column names of X1, X2, X3 etc. so we need to rename them to reflect the values stored in each column
+# The columns included in the results data frame (the first 11 names b - f_ratio_err) can be found in the R script for the model 
+# Create the list of column names including names for the columns we are going to add as identifiers (in this case id - b_0) 
+
+col_names <- c("b", "c", "year", "r", "r_p", "f", "f_msy", "f_msy_p", "f_ratio", "f_ratio_p", "f_ratio_err", #from results dataframe
+               "id", "r_0","r_s", "r_p_s", "hcr", "b_0") #added identifier column names 
+
+# Create a new list to store the updated simulations with added identifier columns 
+results_id <- list()
+
+# Loop to add identifiers to each experiment in the list
+## Make sure the 1:xxx matches the number of lists in the results and the model output name matches (in this case run2 is the results output name)
+for(i in 1:1224){
+  dat <- as.data.frame(matrix(unlist(run2[i]), ncol = 11)) #first unlist the results (called run2) into a dataframe which has 11 columns
+  dat$id <- i #simulation id (in this case a number 1-1224)
+  
+  # Add identifiers from the original input list (if you name it something other than inputs you would need to change that here to match)
+  dat$r_0 <- rep(inputs[[i]]$r, 100) #intial growth rate used as the model input
+  dat$r_s <- rep(inputs[[i]]$r_s, 100) #pace of climate change used as model input
+  dat$r_p_s <- rep(inputs[[i]]$r_p_s, 100) #estimated pace of climate change used as model input
+  dat$hcr <- rep(inputs[[i]]$hcr, 100) #hcr used as the model input
+  dat$b_0 <- rep(inputs[[i]]$b, 100) #starting biomass used as the model input
+  results_id[[i]] <- dat #store new dataframe back into a list 
+}
+
+# Bind all the experiments together int o a single tidy format file (not a list)
+results_all <- bind_rows(results_id)
+
+#Update the column names:
+colnames(results_all) <- col_names
+```
+
+## Step 6 - Save Results
+
+The results should be saved to prevent the need to re-run the model every time as well as to preserve reproducible results. The model involves some randomness so the exact results will never be the same from one run to the next. Therefore, saving your results preserves the outcomes from any given model run. The results should be saved to the `03_model_output` folder and we save them as csv files.   
+
+Again we use the *here* package to assist with file paths and make sure results are saved to the correct location.  
+
+Recommendations for naming conventions can be found in the [SOP for data management](./Reference/SOP_data_management.md), for this example we will call this "example_results.csv"
+```{r save-csv}
+# Using the write.csv function to write these results to the model output folder
+write.csv(results_all, file = file.path(here::here(),"/03_model_output/example_results.csv"),
+           row.names = FALSE)
+```
+
