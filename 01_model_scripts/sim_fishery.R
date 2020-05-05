@@ -92,6 +92,10 @@ sim_fishery <- function(b, r, r_s, r_p_s, error, p=0.2, k=10000, years=100, hcr)
 # Loop the model over the specified number of years
 # Results are calculated differently for assessment years and non-assessment years 
 # Management decisions (i.e. changing fishing pressure (f)) are only made during assessment years
+  
+  # Write a "not contained in" function" for non-assessment years
+  `%not_in%` <- purrr::negate(`%in%`)
+  
   for (t in 2:years) {
  
 # Assessment year results: 
