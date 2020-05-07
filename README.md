@@ -6,4 +6,4 @@ The repository includes models, analysis code, and example visualizations create
 
 This work was completed in May 2020 for the Environmental Defense Fund in partial fulfillment of the Masters of Environmental Science and Management degree at the Bren School of Environmental Science & Management by Nathaniel Burola, Chase Brewster, Sara Orofino, and Gracie White.  
 
-More information about the project can be found at our [website](). For additional information regarding the models and methods, please refer to the project's [final report]().   
+More information about the project can be found at our [website](https://www.somefinfishe.com/). For additional information regarding the models and methods, please refer to the project's [final report](http://bren.ucsb.edu/research/documents/SomefinFISHEFinalReport.pdf).   
