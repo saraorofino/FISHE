@@ -1,0 +1,92 @@
+---
+title: "example_analysis"
+output: html_document
+---
+
+This document provides an example of generating a graph to compare outcomes of fishery health in year 100 based on different harvest control rules.    
+
+## Step 1 - Packages
+
+We are using the *tidyverse* to wrangle our data for graphing and we will use the *here* package for setting the files path to the data. If you have not installed these packages, you must first do that using install.packages("package-name")
+```{r packages, message=F, warning=F}
+library(tidyverse)
+library(here)
+```
+
+
+## Step 2 - Read Data
+
+Read in data from the `05_analysis_data` folder     
+```{r read-data, message=FALSE, warning=FALSE}
+
+# Read in the ex_analysis_data.csv file using the read_csv() function and using the here package 
+ex_df <- read_csv(file=file.path(here::here(),"/05_analysis_data/ex_analysis_data.csv")) 
+
+```
+
+
+## Step 3 - Wrangle for Graphing
+
+The graphs in our project's report have a proportion of healthy fisheries on the y-axis and the categories for the action of interest on the x-axis. For this graph, our action of interest are the different harvest control rules (hcrs) we used when we ran the model. We can calculate a proportion of healthy fisheries using the "status" identifier we added during the processing code.  
+
+The data wrangling to create this graph has three parts: 
+
+ * Filter for only negative climate change (depending on your interest)
+ * Group by your action of interest (in this case the hcr)  
+ * Count the number of simulations in the different status categories (in this case we just have "over" and "healthy")  
+ * Use the spread() function so we can get the count for over and healthy as columns have only three rows (one for each hcr)  
+ * Find the total number of simulations 
+ * Find the proportion of simulations with a status of "healthy"  
+ 
+```{r wrangle-graphing-data}
+# Create a data frame we can use to graph proportion of healthy fisheries for each of our hcrs
+hcr_props <- ex_df %>% 
+  filter(r_s < 0) %>% #negative climate change rates
+  group_by(hcr) %>% #group-by action of interest
+  count(status) %>% #count the number of simulations in each status category
+  spread(key = "status", value = "n") %>% #transform into a 3 row by 3 column df (instead of a 6 row by 3 column df)
+  mutate(simulations = sum(over + good)) %>% 
+  mutate(prop_good = good / simulations)
+```
+
+
+## Step 4 - Graph
+
+Create a bar graph with the hcr's as the x-axis and the proportion of healthy fisheries as the y-axis. This allows us to compare the impact of using a different harvest control rule on the over proportion of healthy fisheries.  
+
+```{r graph}
+hcr_graph <- ggplot(hcr_props, aes(x = hcr, y = prop_good)) +
+  geom_col(alpha = 0.8, fill = "#079EDF") + #blue color used in all the graphs of our report
+  theme_light()+
+  coord_cartesian(ylim=c(0,1), expand = FALSE ) +
+  # reverse the x-axis so lower fishing reductions are shown on the left and higher fishing reduction on the right
+  # use the % reduction instead of the decimal as the axis label
+  scale_x_reverse(breaks=c(0.7,0.8,0.9), labels=c("0.7" = "30%","0.8" = "20%","0.9" = "10%")) +
+  labs(title = "Fishing Reduction", x = "Reduction Amount (%)", y = "Proportion Healthy") + 
+  # add some styling to the graph 
+  theme(axis.text.x=element_text(size=15), axis.text.y=element_text(size=15), #adjust x and y tick mark text size
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 20), #adjust plot title text size, bold
+        axis.title.x = element_text(face = "bold", size = 15), #adjust x-axis title text size, bold
+        axis.title.y = element_text(face = "bold", size = 15), #adjust y-axis title text size, bold
+        legend.title.align=0.5, panel.background = element_rect(fill = "transparent",colour = NA), #transparent background for saving
+        plot.background = element_rect(fill = "transparent",colour = NA), #plot background transparent 
+        legend.title=element_text(size=15), legend.text=element_text(size=12), #adjust legend title text size
+        legend.key = element_rect(fill = "transparent", colour = "transparent"), #transparent legend key
+        legend.background = element_blank(), legend.box.background = element_blank(), #transparent legend box
+        panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) #remote the background lines
+
+hcr_graph
+```
+
+
+## Step 5 - Save as PNG
+
+Save the graph as a .png file to the `07_figures` folder. We will do this using the ggsave() function. In this example we'll save this figure as "example_figure.png".    
+
+```{r save-graph}
+ggsave(hcr_graph,
+       filename = file.path(here::here(),"07_figures/example_figure.png"), #where you want it saved and the name
+       bg = "transparent", #saves with a transparent background - great for reports and presentations
+       width = 6, height = 4) #specify the desired width/height
+```
+
