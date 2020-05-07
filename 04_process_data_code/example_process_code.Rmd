@@ -7,7 +7,7 @@ This document contains a short example of the processing that we conducted to tr
 
 ## Step 1 - Packages
 
-We are using the *tidyverse* to process our data and we will use the *here* package for setting the files path to the data. if you have not installed these packages, you must first do that using install.packages("package-name")
+We are using the *tidyverse* to process our data and we will use the *here* package for setting the files path to the data. If you have not installed these packages, you must first do that using install.packages("package-name")
 ```{r packages, message=F, warning=F}
 library(tidyverse)
 library(here)
