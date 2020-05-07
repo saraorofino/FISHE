@@ -1,0 +1,60 @@
+---
+title: "example_process_code"
+output: html_document
+---
+
+This document contains a short example of the processing that we conducted to transform the model output data into data that we would use to create our final visualizations. 
+
+## Step 1 - Packages
+
+We are using the *tidyverse* to process our data and we will use the *here* package for setting the files path to the data. if you have not installed these packages, you must first do that using install.packages("package-name")
+```{r packages, message=F, warning=F}
+library(tidyverse)
+library(here)
+```
+
+
+## Step 2 - Read Data
+
+Read in data from the `03_model_output` folder     
+```{r read-data, message=FALSE, warning=FALSE}
+
+# Read in the example_results.csv file using the read_csv() function and using the here package 
+ex_df <- read_csv(file=file.path(here::here(),"/03_model_output/example_results.csv")) 
+
+```
+
+
+## Step 3 - Process 
+
+Note the example_results.csv file in the `03_model_output` folder contains results for model runs using a 10 year assessment interval. In practice we may want to run the model multiple times with different assessment intervals, saving them all as inidividual csv files. In addition to the data processing shown here for a single model output file, we can repeat this process for all of our model outputs and then bind them into a single csv file. We filter down to the year 100 because combining these files in full makes them too large to host on GitHub. Additionally, our data visualizations are comparing fishery health in the final year of the simulation, so we only need to have the year 100 information for each model run. For visualizing comparing other trends over the length of the simulation filtering to only year 100 might be unnecessary.  
+
+Here are we going to do some quick data processing:  
+
+ * Filter data to year 100   
+ * Add an identifier for the assessment interval (ai) -  note this is most relevant when combining results from different assessment intervals  
+ * Determining fishery status in the final year - a biomass less than 1000 is considered "overfished" otherwise the stock is considered "healthy"  
+ * Categorize growth rates for simplicity into "slow", "medium", or "fast" growing  
+
+```{r process-data}
+ex_df_edit <- ex_df %>% 
+  filter(year == 100) %>% 
+  mutate(ai = 10) %>% 
+  mutate(status = ifelse(b <= 1000, "over", "good")) %>% 
+  mutate(growth = ifelse(r_0 <= .3, "slow", ifelse(r_0 > .3 & r_0 <= .5, "medium", "fast")))
+```
+
+If we were repeating this for multiple assessment intervals we would do that in the code chunk above and then bind results using rbind(ex_df_edit, second_df, third_df)  
+
+## Step 4 - Save csv
+
+The processed data should be saved to prevent the need to repeat this code every time we want to make an additional graph. The results should be saved to the `05_analysis_data` folder and we save them as csv files.   
+
+Again we use the *here* package to assist with file paths and make sure results are saved to the correct location.  
+
+Recommendations for naming conventions can be found in the [SOP for data management](./Reference/SOP_data_management.md), for this example we will call this "ex_analysis_data.csv"
+```{r save-csv}
+# Using the write.csv function to write these results to the model output folder
+write.csv(ex_df_edit, file = file.path(here::here(),"/05_analysis_data/ex_analysis_data.csv"),
+           row.names = FALSE)
+```
