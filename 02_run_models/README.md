@@ -15,8 +15,10 @@ This README keeps track of the different model runs and the various data files a
 *Associated output files and analysis code name(s):*
 
 - `03_model_output`: example_results.csv
+  - Note: there can be more than one file listed here if the same model was run over different assessment intervals
 - `04_process_data_code:` example_process_code.rmd
 - `05_analysis_data`: ex_analysis_data.csv
+  - Note: this should be one file, as the different assessment intervals will all be combined and filtered during the processing code stage and should be small enough to save as one file
 - `06_analysis_code`: example_analysis.rmd
 - `07_figures`: example_figure.png
 
