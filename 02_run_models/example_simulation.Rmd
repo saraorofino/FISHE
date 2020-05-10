@@ -47,7 +47,7 @@ assess_int <- seq(10,100,10) #this gives us a 10-20-30-...-100 numeric vector
 **Model Inputs**
 The model inputs are described in the R script. While you can simply use the notation sim_fishery(b=4000, r=0.6, r_s = -0.00767 ... hcr = 0.85) this will only run the model a single time for a single set of specifications. This may be useful in some situations and is one method for generating data.  
 
-We have chosen to run the model simultaneously over a list of inputs to represent a range of different input values. This allowed us to compare the outcomes across some of the different paces of climate change, growth rates, initial biomass conditions, choices for harvest control rules etc. This is a sample code for how to create list of simulations, the values for each input can be altered depending on what is of interest to you.  
+We have chosen to run the model simultaneously over a list of inputs to represent a range of different input values. This allowed us to compare the outcomes across some of the different paces of climate change, growth rates, initial biomass conditions, choices for harvest control rules etc. Examples for the `r_s` input can be found in the [climate_scenarios](./Reference/climate_scenarios.md) file in the `References` folder. This is a sample code for how to create list of simulations, the values for each input can be altered depending on what is of interest to you.  
 ```{r experiment-inputs}
 
 # Create a list with ranges you want to test for each of the required model inputs
