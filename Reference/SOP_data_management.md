@@ -1,6 +1,6 @@
 ### SOP for Data Management
 
-This document describes 1) the file structure of the repository and 2) provides an example workflow. 
+This document describes the file structure of the repository and provides an example workflow outlining the data and code examples contained in the repository. 
 
 #### File Structure
 
