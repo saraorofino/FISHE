@@ -22,7 +22,7 @@
 #' \item{f_msy_p}{the perceived fishing mortality rate that gives biomass for maximum sustainable yield, this is based on if and how managers are accounting for the influence of climate change on the underlying growth of the species}
 #' \item{f_ratio}{the ratio of fishing mortality in year (y) to the fishing mortality that gives the biomass for maximum sustainable yield (i.e. f/f_msy)}
 #' \item{f_ratio_p}{the perceived f/f_msy ratio based on the f_msy_p value instead of the true f_msy}
-#' \item{f_ratio_err}{an f/f_msy ratio used to make a fishery management decision drawn from a lognormal distribution based on the mean of f_ratio and the sampling error defined by the error parameter}
+#' \item{f_ratio_err}{an f/f_msy ratio used to make a fishery management decision drawn from a lognormal distribution based on the mean of f_ratio_p and the sampling error defined by the error parameter}
 #' }
 
 
