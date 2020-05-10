@@ -3,7 +3,7 @@ title: "example_simulation"
 output: html_document
 ---
 
-This document contains a full example of how to source and run the models to generate data. Refer to the README in the `01_model_scripts` folder for additional information on using the models, the model purpose, and model assumptions.  
+This document contains a full example of how to source and run the models to generate data. Refer to the [README](./01_model_scripts/README.md) in the `01_model_scripts` folder for additional information on using the models, the model purpose, and model assumptions. Be sure to update the README in the `02_run_models` folder, found [here](./02_run_models/README.md), each time you run the model to generate new data.  
 
 
 ## Step 1 - Packages
