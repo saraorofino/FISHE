@@ -26,71 +26,85 @@
 #' }
 
 
-sim_fishery <- function(b, r, r_s, r_p_s, error, p=0.2, k=10000, years=100, hcr){
+sim_fishery <- function(b,
+                        r,
+                        r_s,
+                        r_p_s,
+                        error,
+                        p = 0.2,
+                        k = 10000,
+                        years = 100,
+                        hcr) {
   
-# Setup the results dataframe 
+  # Setup the results dataframe 
   results <- data.frame(
     b = rep(NA, years), c = rep(NA, years), 
-    year = 1:years, r = rep(NA, years), r_p = rep(NA, years), f = rep(NA, years),
-    f_msy = rep(NA, years), f_msy_p = rep(NA, years), f_ratio = rep(NA, years), f_ratio_p = rep(NA, years), f_ratio_err = rep(NA, years)) 
+    year = 1:years, r = rep(NA, years), r_p = rep(NA, years),
+    f = rep(NA, years), f_msy = rep(NA, years),
+    f_msy_p = rep(NA, years), f_ratio = rep(NA, years),
+    f_ratio_p = rep(NA, years), f_ratio_err = rep(NA, years)
+  ) 
   
   # Set the initial result for the outputs in year 1 using the input values
-  results$b[1] = b
-  results$r[1] = r
-  results$r_p[1] = r
-  f_int = (results$r[1] / p) * (1 - ((results$b[1] / k) ^ p)) #initial f assuming catch = surplus
+  results$b[1]   <- b
+  results$r[1]   <- r
+  results$r_p[1] <- r
+  
+  # Initial f assuming catch = surplus
+  f_int <- (results$r[1] / p) * (1 - ((results$b[1] / k) ^ p)) 
+  
+
+  # Function to calculate fmsy
+  fmsy <-function(r,p) {
+    r * (1 / (1 + p))
+  } 
   
   # f_msy and f_ratio calculations: 
-  fmsy <-function(r,p){r * (1 / (1+p))} #set up the function to calculate Fmsy based on growth (r) and shape parameter (p)
-  r_calc1 <- results$r[1]
+  r_calc1   <- results$r[1]
   r_calc_p1 <- results$r_p[1]
-  results$f_msy[1] <- fmsy(r=r_calc1, p=p) #calculate fmsy in year 1 based on historical parameters
-  results$f_msy_p[1] <- fmsy(r=r_calc_p1, p=p) #year 1 perceived f_msy is the same as actual f_msy 
-  results$f_ratio[1] = f_int/results$f_msy[1] #calculate the actual f_ratio from initial fishing pressure (this is basically f in time t-1) and fmsy
-  results$f_ratio_p[1] = f_int/results$f_msy_p[1] #perceived f-ratio based on the f_msy_p value 
+  
+  results$f_msy[1]     <- fmsy(r=r_calc1, p=p) 
+  results$f_msy_p[1]   <- fmsy(r=r_calc_p1, p=p)  
+  results$f_ratio[1]   <- f_int/results$f_msy[1] 
+  results$f_ratio_p[1] <- f_int/results$f_msy_p[1]
   
   # f_ratio_err calculation:
-  ## Log transform the mean (m) and stdev (s):
+  # Log transform to avoid pullin negative values
   mu_1 <- log(results$f_ratio_p[1]) 
-  cv <- error
-  sd_1 <- sqrt(log(cv^2+1))
-  
-  ## Draw the f_ratio_err:
+  cv   <- error
+  sd_1 <- sqrt(log(cv^2 + 1))
+
   results$f_ratio_err[1] <- rlnorm(1, meanlog = mu_1, sdlog = sd_1)
   
   
   # Decide how to change f based on the f_ratio estimate with error
-  
-  ## If the fishery is over the limit 
-  if(results$f_ratio_err[1] >= 2){
-    results$f[1] = f_int #keep fishing pressure but adjust catch for that year to reflect "near closure"
+  if (results$f_ratio_err[1] >= 2) {
+    results$f[1] <- f_int 
   } 
-  ## If the fishery is between the target and the limit 
-  if(results$f_ratio_err[1] > 1.1 & results$f_ratio_err[1] < 2){
-    results$f[1] = hcr*f_int #reduce by the hcr
+  
+  if (results$f_ratio_err[1] > 1.1 & results$f_ratio_err[1] < 2) {
+    results$f[1] <- hcr * f_int 
   }  
-  ## If the fishery is pretty much right at the target 
-  if(results$f_ratio_err[1] > 1 & results$f_ratio_err[1] < 1.1){
-    results$f[1] = f_int  #f stays the same in as last year
+
+  if (results$f_ratio_err[1] > 1 & results$f_ratio_err[1] < 1.1) {
+    results$f[1] <- f_int  
   }
-  ## If the fishery is below the target 
-  if(results$f_ratio_err[1] < 1){
-    results$f[1] = 1.05*f_int #f increases by 5% from last year
+
+  if (results$f_ratio_err[1] < 1) {
+    results$f[1] <- 1.05 * f_int 
   } 
   
-  # Calculate catch
-  ## Adjust catch if the f_ratio was over the limit to simulate "near closure"
-  if(results$f_ratio_err[1] >= 2){
-    results$c[1] = results$f[1] * results$b[1] * 0.05 #only keep 95% of the catch 
+  # Adjust catch if the f_ratio was over the limit to simulate "near closure"
+  if (results$f_ratio_err[1] >= 2) {
+    results$c[1] <- results$f[1] * results$b[1] * 0.05 
   } 
-  ## If there are no adjustments simply use b*f 
-  if(results$f_ratio_err[1] < 2){
-    results$c[1] = results$f[1] * results$b[1] 
+
+  if (results$f_ratio_err[1] < 2) {
+    results$c[1] <- results$f[1] * results$b[1] 
   }
   
   
 # Loop the model over the specified number of years
-# Results are calculated differently for assessment years and non-assessment years 
 # Management decisions (i.e. changing fishing pressure (f)) are only made during assessment years
   
   # Write a "not contained in" function" for non-assessment years
@@ -99,94 +113,94 @@ sim_fishery <- function(b, r, r_s, r_p_s, error, p=0.2, k=10000, years=100, hcr)
   for (t in 2:years) {
  
 # Assessment year results: 
-      if(results$year[t] %in% assess_int){
+      if (results$year[t] %in% assess_int) {
       
-      # Growth rates:
-      ## Calculate change to growth rate based on climate change 
-      results$r[t] = results$r[t-1] + (r_s*results$r[t-1])
-      ## Calculate change to perceived growth rate based on perceived climate change 
-      results$r_p[t] = results$r_p[t-1] + (r_p_s*results$r_p[t-1])
+      # Growth rates
+      results$r[t]   <- results$r[t-1] + (r_s * results$r[t-1])
+      results$r_p[t] <- results$r_p[t-1] + (r_p_s * results$r_p[t-1])
       
-      # f_msy and f_ratio: 
-      r_calc2 <- results$r[t] #actual f_fmsy and f_ratio based on true r value
-      r_calc_p2 <- results$r_p[t] #perceived f_msy and f_ratio based on the estimated change in r
-      results$f_msy[t] <- fmsy(r=r_calc2, p=p)
-      results$f_msy_p[t] <- fmsy(r=r_calc_p2, p=p)
-      results$f_ratio[t] <- results$f[t-1]/results$f_msy[t-1] #the ratio of f/fmsy at the beginning of the year is based on last years f and f_msy
-      results$f_ratio_p[t] <- results$f[t-1]/results$f_msy_p[t-1] #the perceived f ratio is based on the perceived f_msy
+      # f and f_msy  
+      r_calc2   <- results$r[t] 
+      r_calc_p2 <- results$r_p[t] 
+      
+      results$f_msy[t]     <- fmsy(r=r_calc2, p=p)
+      results$f_msy_p[t]   <- fmsy(r=r_calc_p2, p=p)
+      results$f_ratio[t]   <- results$f[t-1]/results$f_msy[t-1] 
+      results$f_ratio_p[t] <- results$f[t-1]/results$f_msy_p[t-1] 
       
       # f_ratio_err calculation:
-      ## Transform to new mean (mu)
-      if(results$f_ratio_p[t] != 0){
-        #Assign values to normal dist mean (m):
+      if (results$f_ratio_p[t] != 0) {
+        
         mu_2 <- log(results$f_ratio_p[t])
-        #Draw the f_ratio_err
+      
         results$f_ratio_err[t] <- rlnorm(1, meanlog = mu_2, sdlog = sd_1)
       }
-      ## If the fishery is 'closed' use a ratio of zero
-      if(results$f_ratio_p[t] == 0){
-        results$f_ratio_err[t] = 0
+      # Use if the fishery is closed
+      if (results$f_ratio_p[t] == 0) {
+        results$f_ratio_err[t] <- 0
       }
       
       # Decide how to change f based on the f_ratio estimate with error
-      ## If the fishery is over the limit 
-      if(results$f_ratio_err[t] >= 2){
-        results$f[t] = results$f[t-1]  #keep fishing pressure but adjust catch for that year to reflect "near closure"
+      if (results$f_ratio_err[t] >= 2) {
+        results$f[t] <- results$f[t-1] 
       } 
-      ## If the fishery is between the target and the limit 
-      if(results$f_ratio_err[t] > 1.1 & results$f_ratio_err[t] < 2){
-        results$f[t] = hcr*results$f[t-1] #reduce by hcr 
+      
+      if (results$f_ratio_err[t] > 1.1 & results$f_ratio_err[t] < 2) {
+        results$f[t] <- hcr * results$f[t-1] 
       }  
-      ## If the fishery is pretty much right at the target 
-      if(results$f_ratio_err[t] > 1 & results$f_ratio_err[t] < 1.1){
-        results$f[t] = results$f[t-1]  #f stays the same in as last year
+       
+      if (results$f_ratio_err[t] > 1 & results$f_ratio_err[t] < 1.1) {
+        results$f[t] <- results$f[t-1]  
       }
-      ## If the fishery is below the target 
-      if(results$f_ratio_err[t] < 1){
-        results$f[t] = 1.05*results$f[t-1] #f increases by 5% from last year
+     
+      if (results$f_ratio_err[t] < 1) {
+        results$f[t] <- 1.05 * results$f[t-1] 
       } 
       
       
       #Calculate the biomass
-      results$b[t] = results$b[t-1] + (results$r[t-1] / p)*results$b[t-1]*(1 - ((results$b[t-1]/k) ^ p))-results$c[t-1]
+      results$b[t] <- results$b[t-1] + (results$r[t-1] / p) * 
+        results$b[t-1] * (1 - ((results$b[t-1] / k) ^ p)) - results$c[t-1]
       
-      # Calculate catch
-      ## Adjust catch if the f_ratio was over the limit to simulate "near closure"
-      if(results$f_ratio_err[t] >= 2){
-        results$c[t] = results$f[t] * results$b[t] * 0.05 #only keep 5% of the catch 
+      # Adjust catch if the f_ratio was over the limit to simulate "near closure"
+      if (results$f_ratio_err[t] >= 2) {
+        results$c[t] <- results$f[t] * results$b[t] * 0.05 #only keep 5% of the catch 
       } 
-      ## If there are no adjustments simply use b*f 
-      if(results$f_ratio_err[t] < 2){
-        results$c[t] = results$f[t] * results$b[t]
+
+      if (results$f_ratio_err[t] < 2) {
+        results$c[t] <- results$f[t] * results$b[t]
       }
       
     } 
     
 # Non-assessment year results: 
-    if(results$year[t] %not_in% assess_int){
-      # Calculate growth rates - still update based on yearly changes
-      results$r[t] = results$r[t-1] + (r_s*results$r[t-1])
-      results$r_p[t] = results$r_p[t-1] + (r_p_s*results$r_p[t-1])
+    if (results$year[t] %not_in% assess_int) {
+      
+      # Growth rates
+      results$r[t]   <- results$r[t-1] + (r_s * results$r[t-1])
+      results$r_p[t] <- results$r_p[t-1] + (r_p_s * results$r_p[t-1])
       
       # Calculate biomass 
-      results$b[t] = results$b[t-1] + (results$r[t-1] / p)*results$b[t-1]*(1 - ((results$b[t-1]/k) ^ p))-results$c[t-1]
+      results$b[t] <- results$b[t-1] + (results$r[t-1] / p) * 
+        results$b[t-1] * (1 - ((results$b[t-1] / k) ^ p)) - results$c[t-1]
       
       # Fishing pressure stays the same as prior year
-      results$f[t] = results$f[t-1]
+      results$f[t] <- results$f[t-1]
       
       # Calculate catch 
-      results$c[t] = results$f[t] * results$b[t]
+      results$c[t] <- results$f[t] * results$b[t]
       
       # f_msy results need to continue to update annually to capture changes in r and r_p
-      r_calc3 <- results$r[t]
+      r_calc3   <- results$r[t]
       r_calc_p3 <- results$r_p[t]
-      results$f_msy[t] = fmsy(r=r_calc3, p=p) 
-      results$f_msy_p[t] = fmsy(r=r_calc_p3, p=p)
+      
+      results$f_msy[t]   <- fmsy(r=r_calc3, p=p) 
+      results$f_msy_p[t] <- fmsy(r=r_calc_p3, p=p)
       
       # f_ratio estimates are only updated during assessment years
-      results$f_ratio_err[t] = results$f_ratio_err[t-1]
-      results$f_ratio[t] = results$f[t-1]/results$f_msy[t-1]
-      results$f_ratio_p[t] = results$f_ratio_p[t-1]
+      results$f_ratio_err[t] <- results$f_ratio_err[t-1]
+      results$f_ratio[t]     <- results$f[t-1]/results$f_msy[t-1]
+      results$f_ratio_p[t]   <- results$f_ratio_p[t-1]
       
     }
   }
