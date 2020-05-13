@@ -40,8 +40,8 @@ The two models have the same model inputs. Model inputs are also described in th
 
 -  `b` - initial biomass of the fishery
 - `r` - intrinsic growth rate of species 
-- `r_s` - pace and magnitude of climate change as a percent decline in productivity per year (refer to the [climate scenarios](./Reference/climate_scenarios.md) document for examples)
-- `r_p_s` - a proxy estimate for the pace and magnitude of climate change as a percent decline in productivity per year (values can also be chosen using the [climate scenarios](./Reference/climate_scenarios.md) document as a reference) 
+- `r_s` - pace and magnitude of climate change as a percent decline in productivity per year (refer to the [climate scenarios](./reference/climate_scenarios.md) document for examples)
+- `r_p_s` - a proxy estimate for the pace and magnitude of climate change as a percent decline in productivity per year (values can also be chosen using the [climate scenarios](./reference/climate_scenarios.md) document as a reference) 
 - `error` - the amount of sampling error as a decimal (i.e. 0.1 for 10% error)
 - `p` - the shape parameter of the surplus production model; default is 0.2 for the Pella Tomlinson model 
 - `k` - the estimated carrying capacity relative to the initial biomass; default is 10000

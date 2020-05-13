@@ -5,7 +5,7 @@
 #'  fishing pressure based on target and limit. In this model the fishery closes if the reference point is above the limit.
 #' @param b initial biomass of the fishery
 #' @param r intrinsic growth rate of species 
-#' @param r_s pace and magnitude of climate change as a percent decline in productivity per year (refer to References/climate_scenarios.md for examples)
+#' @param r_s pace and magnitude of climate change as a percent decline in productivity per year (refer to references/climate_scenarios.md for examples)
 #' @param r_p_s a proxy estimate for the pace and magnitude of climate change as a percent decline in productivity per year
 #' @param error the amount of sampling error as a decimal (i.e. 0.1 for 10% error)
 #' @param p the shape parameter of the surplus production model; default is 0.2 for the Pella Tomlinson model 

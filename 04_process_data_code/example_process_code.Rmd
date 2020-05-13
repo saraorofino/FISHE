@@ -7,7 +7,8 @@ This document contains a short example of the processing that we conducted to tr
 
 ## Step 1 - Packages
 
-We are using the *tidyverse* to process our data and we will use the *here* package for setting the files path to the data. If you have not installed these packages, you must first do that using install.packages("package-name")
+We are using the *tidyverse* to process our data and we will use the *here* package for setting the files path to the data. 
+
 ```{r packages, message=F, warning=F}
 library(tidyverse)
 library(here)
@@ -37,6 +38,7 @@ Here are we going to do some quick data processing:
  * Categorize growth rates for simplicity into "slow", "medium", or "fast" growing  
 
 ```{r process-data}
+# Process data to be useful for graphing
 ex_df_edit <- ex_df %>% 
   filter(year == 100) %>% 
   mutate(ai = 10) %>% 
@@ -52,7 +54,8 @@ The processed data should be saved to prevent the need to repeat this code every
 
 Again we use the *here* package to assist with file paths and make sure results are saved to the correct location.  
 
-Recommendations for naming conventions can be found in the [SOP for data management](./Reference/SOP_data_management.md), for this example we will call this "ex_analysis_data.csv"
+Recommendations for naming conventions can be found in the [SOP for data management](./reference/SOP_data_management.md), for this example we will call this "ex_analysis_data.csv"
+
 ```{r save-csv}
 write.csv(ex_df_edit, file = file.path(here::here(),"/05_analysis_data/ex_analysis_data.csv"),
            row.names = FALSE)

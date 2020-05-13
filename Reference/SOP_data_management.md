@@ -22,7 +22,7 @@ The file of structure of this repository mimics the workflow used to move from d
   - *analysis*`.rmd`: R Markdown file to run an *analysis* and generate any tables or figures
 - `07_figures/` : folder containing figures generated through code in the `06_analysis_code` folder
   - *figure*`.png`: png image output for each *figure* 
-- `References/`: folder containing reference material
+- `references/`: folder containing reference material
   - `SOP_data_management.md`: this file, provides information on file structure and example workflow
   - `climate_scenarios.md`: gives examples of paces and magnitudes of climate change which can be used as the r_s input  
 
