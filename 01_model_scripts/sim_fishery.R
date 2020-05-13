@@ -1,6 +1,8 @@
 #' Simulates a fishery using the Framework for Integrated Stock and Habitat Evaluation to guide their management decisions 
 #' 
-#' Simulate fishery biomass, catch, and growth over time
+#' Simulate a fishery using an underlying Pella Tomlinson Surplus Production model, 
+#'  add influences of climate change on biological growth rates, and make management decisions
+#'  about how to change the fishing pressure based on target and limit  
 #' @param b initial biomass of the fishery
 #' @param r intrinsic growth rate of species 
 #' @param r_s pace and magnitude of climate change as a percent decline in productivity per year (refer to References/climate_scenarios.md for examples)
