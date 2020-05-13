@@ -1,6 +1,6 @@
 ### SOP for Data Management
 
-This document describes the file structure of the repository and provides an example workflow outlining the data and code examples contained in the repository. 
+This document describes the 1) file structure of the repository, 2) provides an example workflow outlining the data and code examples and 3) outlines a style guide. 
 
 #### File Structure
 
@@ -42,4 +42,8 @@ This repository contains a full example of the code used to generate one of the 
   - R Markdown that calculates the proportion of healthy fisheries based on an action of interest and generates a finalized graph, saves that graph to the `07_figures` folder  
 - `07_figures`: example_figure.png 
   - A png image, saved with transparent background, that can be used for presentations and reports  
-    
+
+#### Style Guide
+
+We recommend using a consistent code style to help with collaboration and reproducibility of this analyses. These "style guides" typically include standardized ways of naming files, defining functions and variables, annotating code, etc. We recommend using the [Tidyverse Style Guide](https://style.tidyverse.org/).  
+
