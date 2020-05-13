@@ -17,9 +17,9 @@ library(here)
 ## Step 2 - Read Data
 
 Read in data from the `03_model_output` folder     
+
 ```{r read-data, message=FALSE, warning=FALSE}
 
-# Read in the example_results.csv file using the read_csv() function and using the here package 
 ex_df <- read_csv(file=file.path(here::here(),"/03_model_output/example_results.csv")) 
 
 ```
@@ -54,7 +54,6 @@ Again we use the *here* package to assist with file paths and make sure results 
 
 Recommendations for naming conventions can be found in the [SOP for data management](./Reference/SOP_data_management.md), for this example we will call this "ex_analysis_data.csv"
 ```{r save-csv}
-# Using the write.csv function to write these results to the model output folder
 write.csv(ex_df_edit, file = file.path(here::here(),"/05_analysis_data/ex_analysis_data.csv"),
            row.names = FALSE)
 ```
