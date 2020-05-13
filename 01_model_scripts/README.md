@@ -2,11 +2,11 @@
 
 ##### Purpose
 
-The purpose of the model(s) is to simulate a fishery overtime that is using the FISHE framework to guide their management decisions. The model allows us to test the effect of different management actions on the health of a fishery over time. 
+The purpose of the model(s) is to simulate a fishery overtime that is using FISHE to guide their management decisions. The model allows us to test the effectiveness of different management actions on the health of a fishery over time. 
 
 ##### Differences
 
-There is one difference between the models. The *sim_fishery* model does not close if the fishery goes over the limit. Assuming that full closure is unrealistic, this model maintains some small level of fishing activity. If the fishery is over the limit in year *y*, the model will cut back the catch in year *y* by 95%. This cutback lasts a single year and the fishing pressure (*f*) in year *y+1* will be the same as year *y*. 
+There is one difference between the models. The *sim_fishery* model does not close if the fishery goes over the limit. Assuming a full closure is unrealistic, this model maintains some small level of fishing activity. If the fishery is over the limit in year *y*, the model will cut back the catch in year *y* by 95%. This cutback lasts a single year and the fishing pressure (*f*) in year *y+1* will be the same as year *y*. 
 
 ### Model Assumptions
 
@@ -16,14 +16,14 @@ The models are based on the following assumptions:
 - The current fishing mortality rate (*f*) is reached when catch is equivalent to the surplus production of the fishery at that biomass. 
 - The fishing mortality rate (*f*) calculated at the beginning of the simulation is the true fishing mortality rate of the operating fishery.
 - Fishing mortality (*f*) and *f/fmsy* are calculated at the beginning of each year and the change in *f* made by the management decision is applied to *f* in that same year.
-- Climate change is affeecting thee productivity of fish stocks by influencing the growth term (*r*).
+- Climate change is affecting the productivity of fish stocks by influencing the growth term (*r*).
 - Participants of the fishery adhere to the management decisions and the fishing mortality rate (*f*) that results from the management decision is the true fishing mortality rate of the fishery. 
 
 ### Performance Indicators/Reference Points
 
-The model using the following performance indicator: *f / fmsy* also called the *f ratio*
+The model uses the following performance indicator: *f / fmsy* also called the *f ratio*
 
-Which is the ratio of the current fishing mortality rate (*f*) to the fishing mortality that would produce biomass of maximum sustainable yield (*fmsy*).
+which is the ratio of the current fishing mortality rate (*f*) to the fishing mortality that would produce biomass of maximum sustainable yield (*fmsy*).
 
 The reference points used in the model are a target ratio of 1 and a limit ratio of 2. A target ratio of 1 means the fishery is currently fishing at exactly the fishing pressure that gives the biomass of maximum sustainable yield, while a ratio of 2 means the fishery is fishing twice as hard as the fishing pressure that would give the biomass of maximum sustainable yield. The decision tree used in the model is as follows: 
 
@@ -41,7 +41,7 @@ The two models have the same model inputs. Model inputs are also described in th
 -  `b` - initial biomass of the fishery
 - `r` - intrinsic growth rate of species 
 - `r_s` - pace and magnitude of climate change as a percent decline in productivity per year (refer to the [climate scenarios](./Reference/climate_scenarios.md) document for examples)
-- `r_p_s` - a proxy estimate for the pace and magnitude of climate change as a percent decline in productivity per year
+- `r_p_s` - a proxy estimate for the pace and magnitude of climate change as a percent decline in productivity per year (values can also be chosen using the [climate scenarios](./Reference/climate_scenarios.md) document as a reference) 
 - `error` - the amount of sampling error as a decimal (i.e. 0.1 for 10% error)
 - `p` - the shape parameter of the surplus production model; default is 0.2 for the Pella Tomlinson model 
 - `k` - the estimated carrying capacity relative to the initial biomass; default is 10000
