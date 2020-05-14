@@ -81,7 +81,7 @@ sim_fishery <- function(b,
   
   # Decide how to change f based on the f_ratio estimate with error
   if (results$f_ratio_err[1] >= 2) {
-    results$f[1] <- f_int 
+    results$f[1] <- hcr * f_int 
   } 
   
   if (results$f_ratio_err[1] > 1.1 & results$f_ratio_err[1] < 2) {
@@ -144,7 +144,7 @@ sim_fishery <- function(b,
       
       # Decide how to change f based on the f_ratio estimate with error
       if (results$f_ratio_err[t] >= 2) {
-        results$f[t] <- results$f[t-1] 
+        results$f[t] <- hcr * results$f[t-1] 
       } 
       
       if (results$f_ratio_err[t] > 1.1 & results$f_ratio_err[t] < 2) {
