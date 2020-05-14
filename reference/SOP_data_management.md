@@ -28,7 +28,7 @@ The file of structure of this repository mimics the workflow used to move from d
 
 #### Example Workflow
 
-This repository contains a full example of the code used to generate one of the final figures found in the report. The README in the `02_run_models` folder, found [here](./02_run_models/README.md), has been updated to track to the data files and code files generated as part of this example. This example uses the model `sim_fishery`, and generates the following data and code.  
+This repository contains a full example of the code used to generate one of the final figures found in the report. The README in the `02_run_models` folder, found [here](../02_run_models/README.md), has been updated to track to the data files and code files generated as part of this example. This example uses the model `sim_fishery`, and generates the following data and code.  
 
 - `02_run_models`: example_simulations.rmd 
   - R Markdown script that sources the model and walks through how to use the model to generate data, add identifiers, and save as a csv file to the `03_model_output` folder
